@@ -16,7 +16,7 @@ class ID:
         self._id_str = id_str
 
     def pretty(self):
-        return self._id_str
+        return base58.b58encode(self._id_str).decode()
 
     def __str__(self):
         pid = self.pretty()
