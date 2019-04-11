@@ -43,6 +43,7 @@ class FloodSub(IPubsubRouter):
         """
 
     async def publish(self, sender_peer_id, rpc_message):
+        print("Publishing")
         """
         Invoked to forward a new message that has been validated.
         This is where the "flooding" part of floodsub happens
@@ -62,18 +63,22 @@ class FloodSub(IPubsubRouter):
         # Deliver to self if self was origin
         # Note: handle_talk checks if self is subscribed to topics in message
         for message in packet.publish:
+            print("Message is " + str(message))
             decoded_from_id = message.from_id.decode('utf-8')
             if msg_sender == decoded_from_id and msg_sender == str(self.pubsub.host.get_id()):
                 await self.pubsub.handle_talk(message)
-
             # Deliver to self and peers
             for topic in message.topicIDs:
+                print("Topic is " + topic)
                 if topic in self.pubsub.peer_topics:
                     for peer_id_in_topic in self.pubsub.peer_topics[topic]:
+                        print("Peer is " + str(peer_id_in_topic))
                         # Forward to all known peers in the topic that are not the
                         # message sender and are not the message origin
                         if peer_id_in_topic not in (msg_sender, decoded_from_id):
+                            print("Getting stream")
                             stream = self.pubsub.peers[peer_id_in_topic]
+                            print("Getting stream " + str(stream))
                             # Create new packet with just publish message
                             new_packet = rpc_pb2.RPC()
                             new_packet.publish.extend([message])

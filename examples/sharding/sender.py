@@ -117,9 +117,11 @@ class SenderNode():
             # self.test_being_performed boolean
             while (curr_time - start) < time_length:
                 # Send message on single topic
+                print("Generating packet")
                 packet = generate_RPC_packet(my_id, [topic], msg_contents, self.next_msg_id_func())
 
                 await self.floodsub.publish(my_id, packet.SerializeToString())
+                print("Publishing packet")
                 num_sent_in_each_topic[topic] += 1
                 
                 # Wait for acks
@@ -135,7 +137,7 @@ class SenderNode():
                     num_acks += 1
                 num_acks_in_each_topic[topic] += 1
                 curr_time = timer()
-
+            print("Left while")
             nonlocal completed_topics_count, num_topics
             print("Test completed " + topic)
             completed_topics_count += 1

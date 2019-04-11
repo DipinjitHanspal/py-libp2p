@@ -53,13 +53,11 @@ async def main():
         await connect(sender_node.libp2p_node, neighbor_addr)
     print("Connected")
 
-    return
-
     # Perform throughput test
     # Start sending messages and perform throughput test
     # Determine number of receivers in each topic
     topic_map = topology_config_dict["topic_map"]
-    topics = topic_map.keys()
+    topics = list(dict.fromkeys(topic_map.values()))
 
     num_receivers_in_each_topic = {}
     for topic in topic_map:

@@ -84,6 +84,8 @@ async def main():
     print("Receiver created")
     # TODO: sleep for like 15 seconds to let other nodes start up
 
+    return
+
     # Connect receiver node to all other relevant receiver nodes
     for neighbor in topology_config_dict["topology"][my_node_id]:
         neighbor_addr_str = topology_config_dict["node_id_map"][neighbor]
@@ -103,7 +105,7 @@ async def main():
 
     # Start listening for messages from sender
     print("Start receiving called")
-    asyncio.ensure_future(receiver.start_receiving(sender_addr))
+    asyncio.ensure_future(receiver_node.start_receiving(sender_addr))
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
