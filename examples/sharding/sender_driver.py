@@ -60,9 +60,14 @@ async def main():
     topics = list(dict.fromkeys(topic_map.values()))
 
     num_receivers_in_each_topic = {}
-    for topic in topic_map:
-        num_receivers_in_each_topic[topic] = len(topic_map[topic])
+    for topic in topic_map.values():
+        if topic in num_receivers_in_each_topic:
+            num_receivers_in_each_topic[topic] = num_receivers_in_each_topic[topic] + 1
+        else:
+            num_receivers_in_each_topic[topic] = 1
+        # num_receivers_in_each_topic[topic] = len(topic_map[topic])
     print("Performing test")
+    await asyncio.sleep(0.5)
     await sender_node.perform_test(num_receivers_in_each_topic, topics, 10)
 
 if __name__ == "__main__":

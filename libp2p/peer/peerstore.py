@@ -66,6 +66,7 @@ class PeerStore(IPeerStore):
         peer.add_addrs(addrs)
 
     def addrs(self, peer_id):
+        print("Peer map is " + str(self.peer_map))
         if peer_id in self.peer_map:
             return self.peer_map[peer_id].get_addrs()
         raise PeerStoreError("peer ID not found")

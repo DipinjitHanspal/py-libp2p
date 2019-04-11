@@ -8,6 +8,7 @@ from tests.pubsub.utils import generate_RPC_packet, message_id_generator
 from libp2p import new_node
 from libp2p.pubsub.pubsub import Pubsub
 from libp2p.pubsub.floodsub import FloodSub
+from libp2p.peer.id import ID
 
 SUPPORTED_PUBSUB_PROTOCOLS = ["/floodsub/1.0.0"]
 TOPIC = "eth"
@@ -32,7 +33,10 @@ class SenderNode():
         """
         self = SenderNode()
 
-        libp2p_node = await new_node(transport_opt=[transport_opt_str])
+        id_opt = ID("peer-" + my_node_id)
+        print("My sender is " + id_opt.pretty())
+
+        libp2p_node = await new_node(id_opt=id_opt, transport_opt=[transport_opt_str])
         await libp2p_node.get_network().listen(multiaddr.Multiaddr(transport_opt_str))
 
         self.libp2p_node = libp2p_node
@@ -51,7 +55,9 @@ class SenderNode():
                 # This Ack is what times out when multi-topic tests finish
                 ack = await stream.read()
                 if ack is not None:
+                    print("Ack waiting")
                     await self.ack_queue.put(ack)
+                    print("Ack received!")
                 else:
                     print("FUCK")
                     break
@@ -68,7 +74,8 @@ class SenderNode():
 
     async def perform_test(self, num_receivers_in_each_topic, topics, time_length):
         # Time and loop
-
+        print("Perform test called")
+        print(num_receivers_in_each_topic)
         my_id = str(self.libp2p_node.get_id())
         msg_contents = "transaction"
 
@@ -90,10 +97,13 @@ class SenderNode():
             print("Handling ack queues")
             nonlocal completed_topics_count, num_topics
             while completed_topics_count < num_topics:
+                print("handling ack queue waiting")
                 ack = await self.ack_queue.get()
+                print("handling ack queue got!")
                 decoded_ack = ack.decode()
-
+                print("handling ack queue decoded ack is " + decoded_ack)
                 await self.topic_ack_queues[decoded_ack].put(decoded_ack)
+                print("handling ack queue decoded ack put")
 
                 curr_time = timer()
 
@@ -133,7 +143,9 @@ class SenderNode():
                 # TODO: Check safety of this. Does this make sense in the asyncio
                 # event-driven setting?
                 while num_acks < num_receivers_in_each_topic[topic]:
+                    print("Test- Waiting for ack on " + topic)
                     ack = await self.topic_ack_queues[topic].get()
+                    print("Test- Ack got on " + topic)
                     num_acks += 1
                 num_acks_in_each_topic[topic] += 1
                 curr_time = timer()
