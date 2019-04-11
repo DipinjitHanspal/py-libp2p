@@ -53,6 +53,32 @@ async def main():
         await connect(sender_node.libp2p_node, neighbor_addr)
     print("Connected")
 
+    # Get list of all nodes
+    all_nodes = list(topology_config_dict["topology"].keys())
+    for neighbors_list in topology_config_dict["topology"].values():
+        for node in neighbors_list:
+            if node not in all_nodes:
+                all_nodes.append(node)
+    print(all_nodes)
+
+    # return
+
+    # Tell all nodes to connect to each other
+    for node_id in all_nodes:
+        if node_id != "sender":
+            id_opt = ID("peer-" + node_id)
+            node_addr_str = topology_config_dict["node_id_map"][node_id]
+            node_addr_str += "/p2p/" + id_opt.pretty()
+            print("Connecting to " + node_addr_str)
+            node_addr = multiaddr.Multiaddr(node_addr_str)
+            node_info = info_from_p2p_addr(node_addr)
+            await sender_node.libp2p_node.connect(node_info)
+            command_stream = await sender_node.libp2p_node.new_stream(node_info.peer_id, ["/command/1.0.0"])
+            await command_stream.write("start".encode())
+
+    # Wait 2 seconds for nodes to connect
+    await asyncio.sleep(5)
+
     # Perform throughput test
     # Start sending messages and perform throughput test
     # Determine number of receivers in each topic

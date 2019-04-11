@@ -21,8 +21,13 @@ class ReceiverNode():
     def __init__(self):
         self.next_msg_id_func = message_id_generator(0)
 
+    async def connect(self, node1, node2_addr):
+        # node1 connects to node2
+        info = info_from_p2p_addr(node2_addr)
+        await node1.connect(info)
+
     @classmethod
-    async def create(cls, node_id, transport_opt_str, ack_protocol, topic):
+    async def create(cls, node_id, transport_opt_str, ack_protocol, topic, topology_config_dict):
         """
         Create a new ReceiverNode and attach a libp2p node, a floodsub, and a pubsub
         instance to this new node
@@ -48,6 +53,44 @@ class ReceiverNode():
 
         self.ack_protocol = ack_protocol
 
+        self.topology_config_dict = topology_config_dict
+
+        async def command_stream_handler(stream):
+            print("Command stream handler entered")
+            nonlocal topology_config_dict, node_id
+            start_cmd = (await stream.read()).decode()
+            print("Command received")
+            if start_cmd == "start":
+                print("Starting")
+                # Connect receiver node to all other relevant receiver nodes, if receiver node
+                # is listed in adjacency list
+                if node_id in self.topology_config_dict["topology"]:
+                    for neighbor in self.topology_config_dict["topology"][node_id]:
+                        neighbor_addr_str = self.topology_config_dict["node_id_map"][neighbor]
+
+                        # Add p2p part
+                        neighbor_addr_str += "/p2p/" + ID("peer-" + neighbor).pretty()
+
+                        # Convert neighbor_addr_str to multiaddr
+                        neighbor_addr = multiaddr.Multiaddr(neighbor_addr_str)
+                        await self.connect(self.libp2p_node, neighbor_addr)
+
+                # Get sender info as multiaddr
+                sender_addr_str = self.topology_config_dict["node_id_map"]["sender"]
+
+                # Convert sender_info_str to multiaddr
+                sender_addr = multiaddr.Multiaddr(sender_addr_str + '/p2p/' + ID('peer-sender').pretty())
+
+                # Start listening for messages from sender
+                print("Start receiving called")
+                sender_info = info_from_p2p_addr(sender_addr)
+                self.libp2p_node.peerstore.add_addrs(sender_info.peer_id, sender_info.addrs, 10)
+                asyncio.ensure_future(self.start_receiving(sender_info))
+            else:
+                print("Invalid command")
+
+        self.libp2p_node.set_stream_handler("/command/1.0.0", command_stream_handler)
+
         return self
 
     async def wait_for_end(self, ack_stream):
@@ -63,8 +106,6 @@ class ReceiverNode():
     async def start_receiving(self, sender_node_info):
         print("Receiving started")
 
-        # await self.libp2p_node.connect(sender_node_info)
-        print("Connection to sender confirmed")
         print("My sender is " + sender_node_info.peer_id.pretty())
         ack_stream = await self.libp2p_node.new_stream(sender_node_info.peer_id, [self.ack_protocol])
         print("Ack stream created")

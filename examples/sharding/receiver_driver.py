@@ -80,10 +80,13 @@ async def main():
     # Create Receiver Node
     print("Creating receiver")
     my_transport_opt_str = topology_config_dict["node_id_map"][my_node_id]
-    receiver_node = await ReceiverNode.create(my_node_id, my_transport_opt_str, ACK_PROTOCOL, my_topic)
+    receiver_node = \
+        await ReceiverNode.create(my_node_id, my_transport_opt_str, ACK_PROTOCOL, my_topic, topology_config_dict)
     print("Receiver created")
-    # TODO: sleep for like 15 seconds to let other nodes start up
     
+    # Return since all logic is now done in receiver.py
+    return
+
     # Connect receiver node to all other relevant receiver nodes
     await asyncio.sleep(5)
     for neighbor in topology_config_dict["topology"][my_node_id]:
