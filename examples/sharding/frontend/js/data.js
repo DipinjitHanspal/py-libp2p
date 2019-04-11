@@ -29,7 +29,14 @@ const links = [
     {"source": "boon", "target": "rob"}
 ]
 
+const blocks = [
+    {"source": "aspyn", "target": "rob"},
+    {"source": "aspyn", "target": "zx"},
+    {"source": "aspyn", "target": "alex"},
+    {"source": "zx", "target": "alex"}
+]
+
 var graph = {'nodes': nodes,
          'links': links}
 
-export {graph}
+export {graph, blocks}

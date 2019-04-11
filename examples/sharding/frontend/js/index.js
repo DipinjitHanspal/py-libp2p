@@ -1,6 +1,6 @@
 // import _ from 'lodash';
 
-import {graph} from './data.js';
+import {graph, blocks} from './data.js';
 
 console.log('hello');
 
@@ -9,6 +9,21 @@ console.log(graph);
 var nodes = graph.nodes;
 var links = graph.links;
 
+
+const plotBlocks = function(blocks) {
+	blocks.forEach((block) => {
+		var start = nodesDict[block.source]
+		var end = nodesDict[block.target]
+		var block = createBlock(start.x_axis, start.y_axis);
+		var dx = end.x_axis - start.x_axis
+			var dy = end.y_axis -  start.y_axis
+			block.transition()
+			.attr("transform", "translate(" + dx + "," + dy + ")")
+			.duration(2000)
+			.on("end", function(d){this.remove()});
+	})
+	return;
+}
 
 var nodesDict = {}
 	nodes.forEach((node) => {
@@ -119,23 +134,26 @@ var nodesDict = {}
 			.text("\uf0e0");   
 		return block;
 	}
-	const transition = function(paths) {
-		console.log("paths");
-		console.log(paths);
-		console.log(formattedLinks)
-		var block = createBlock();
-		svgPaths.forEach((path) => {
-			console.log("path:")
-			console.log(path)
-			var block = createBlock(path[0].x, path[0].y);
-			var dx = path[1].x -  path[0].x
-			var dy = path[1].y -  path[0].y
-			console.log("translate(" + dx + "," + dy + ")")
-			block.transition()
-			.attr("transform", "translate(" + dx + "," + dy + ")")
-			.duration(2000)
-			.on("end", function(d){this.remove()});
-		})
-	}
+	// const transition = function(paths) {
+	// 	console.log("paths");
+	// 	console.log(paths);
+	// 	console.log(formattedLinks)
+	// 	var block = createBlock();
+	// 	svgPaths.forEach((path) => {
+	// 		console.log("path:")
+	// 		console.log(path)
+	// 		var block = createBlock(path[0].x, path[0].y);
+	// 		var dx = path[1].x -  path[0].x
+	// 		var dy = path[1].y -  path[0].y
+	// 		console.log("translate(" + dx + "," + dy + ")")
+	// 		block.transition()
+	// 		.attr("transform", "translate(" + dx + "," + dy + ")")
+	// 		.duration(2000)
+	// 		.on("end", function(d){this.remove()});
+	// 	})
+	// }
 
-	transition(paths)
+	// transition(paths);
+	setInterval(function() {
+		plotBlocks(blocks);
+	}, 1000);
