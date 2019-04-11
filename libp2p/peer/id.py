@@ -16,13 +16,10 @@ class ID:
         self._id_str = id_str
 
     def pretty(self):
-        return base58.b58encode(self._id_str).decode()
+        return self._id_str
 
     def __str__(self):
-        pid = self.pretty()
-        if len(pid) <= 10:
-            return "<peer.ID %s>" % pid
-        return "<peer.ID %s*%s>" % (pid[:2], pid[len(pid)-6:])
+        return self._id_str
 
     __repr__ = __str__
 
