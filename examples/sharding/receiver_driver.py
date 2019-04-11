@@ -107,5 +107,5 @@ async def main():
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    asynio.ensure_future(main())
+    asyncio.ensure_future(main())
     loop.run_forever()
