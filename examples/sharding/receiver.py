@@ -42,6 +42,7 @@ class ReceiverNode():
         self.floodsub = FloodSub(SUPPORTED_PUBSUB_PROTOCOLS)
         self.pubsub = Pubsub(self.libp2p_node, self.floodsub, "a")
 
+        print('subbing to: ' + topic)
         self.pubsub_messages = await self.pubsub.subscribe(topic)
         self.topic = topic
 
@@ -73,6 +74,9 @@ class ReceiverNode():
         ack_msg = self.topic
         encoded_ack_msg = ack_msg.encode()
         while self.should_listen:
+            print('about to read pubsub')
             msg = await self.pubsub_messages.get()
+            print('about to write ack')
             await ack_stream.write(encoded_ack_msg)
+            print('acked back')
         print("Receiver closed")
