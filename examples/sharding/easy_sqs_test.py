@@ -1,9 +1,9 @@
 from easy_sqs import EasySqs
 import json
 
-aws_config = None
+aws_config = json.loads(open("aws_config.json").read())
 
-queue_url = None
+queue_url = "https://sqs.us-east-1.amazonaws.com/875814277611/test-queue"
 
 def main():
     sqs = EasySqs(aws_config)

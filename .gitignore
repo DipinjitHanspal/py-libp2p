@@ -107,4 +107,4 @@ venv.bak/
 .idea/
 
 # aws credentials
-examples/sharding/easy_sqs_test.py
+examples/sharding/aws_config.json
