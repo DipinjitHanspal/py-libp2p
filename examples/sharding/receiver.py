@@ -38,6 +38,7 @@ class ReceiverNode():
         self = ReceiverNode()
 
         id_opt = ID("peer-" + node_id)
+        print("My id is " + id_opt.pretty())
 
         libp2p_node = await new_node(id_opt=id_opt, transport_opt=[transport_opt_str])
         await libp2p_node.get_network().listen(multiaddr.Multiaddr(transport_opt_str))

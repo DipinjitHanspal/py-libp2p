@@ -9,6 +9,9 @@ class FloodSub(IPubsubRouter):
         self.protocols = protocols
         self.pubsub = None
 
+        # FOR BENCHMARKING ONLY
+        self.removed_peers = []
+
     def get_protocols(self):
         """
         :return: the list of protocols supported by the router
@@ -34,6 +37,15 @@ class FloodSub(IPubsubRouter):
         Notifies the router that a peer has been disconnected
         :param peer_id: id of peer to remove
         """
+        # FOR BENCHMARKING ONLY
+        self.removed_peers.append(peer_id)
+        for topic in self.pubsub.peer_topics:
+            print("Entered peer_topics loop")
+            peer_id_str = str(peer_id)
+            if peer_id_str in self.pubsub.peer_topics[topic]:
+                print("REMOVING PEER ID")
+                self.pubsub.peer_topics[topic].remove(peer_id_str)
+
 
     def handle_rpc(self, rpc):
         """
@@ -71,7 +83,9 @@ class FloodSub(IPubsubRouter):
             for topic in message.topicIDs:
                 print("Topic is " + topic)
                 if topic in self.pubsub.peer_topics:
+                    print("Entered peer_topics loop")
                     for peer_id_in_topic in self.pubsub.peer_topics[topic]:
+                        print("Entered peer_id loop " + str(len(self.pubsub.peer_topics[topic])))
                         print("Peer is " + str(peer_id_in_topic))
                         # Forward to all known peers in the topic that are not the
                         # message sender and are not the message origin

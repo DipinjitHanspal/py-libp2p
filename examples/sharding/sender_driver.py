@@ -59,7 +59,6 @@ async def main():
         for node in neighbors_list:
             if node not in all_nodes:
                 all_nodes.append(node)
-    print(all_nodes)
 
     # return
 
@@ -77,7 +76,23 @@ async def main():
             await command_stream.write("start".encode())
 
     # Wait 2 seconds for nodes to connect
-    await asyncio.sleep(5)
+    await asyncio.sleep(2)
+
+    # NOTE: Every node in the network is now a floodsub peer of sender since the PubSub_notifee
+    # will ensure that (which is correct). For benchmarking, we do not want this, so we remove
+    # all floodsub peers that are not neighbors of sender in the topology
+    for node_id in all_nodes:
+        if node_id not in topology_config_dict["topology"][my_node_id]:
+            # I use this bulk of code because I know it works to get peer_id from info 
+            # and I didn't want to deal with errors
+            id_opt = ID("peer-" + node_id)
+            node_addr_str = topology_config_dict["node_id_map"][node_id]
+            node_addr_str += "/p2p/" + id_opt.pretty()
+            node_addr = multiaddr.Multiaddr(node_addr_str)
+            node_info = info_from_p2p_addr(node_addr)
+            sender_node.floodsub.remove_peer(node_info.peer_id)
+            print("Removing peer " + node_id + ", id " + str(node_info.peer_id))
+
 
     # Perform throughput test
     # Start sending messages and perform throughput test
