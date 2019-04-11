@@ -39,7 +39,8 @@ async def main():
     # new_key = RSA.generate(2048, e=65537)
     # id_opt = id_from_public_key(new_key.publickey())
 
-    # Connect sender node to all other relevant sender nodes
+    # Connect sender node to all other relevant nodes
+    print("Connecting")
     for neighbor in topology_config_dict["topology"][my_node_id]:
         neighbor_addr_str = topology_config_dict["node_id_map"][neighbor]
 
@@ -49,7 +50,6 @@ async def main():
 
         # Convert neighbor_addr_str to multiaddr
         neighbor_addr = multiaddr.Multiaddr(neighbor_addr_str)
-        print("Connecting")
         await connect(sender_node.libp2p_node, neighbor_addr)
     print("Connected")
 

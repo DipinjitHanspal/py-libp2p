@@ -148,8 +148,6 @@ class Swarm(INetwork):
                 muxed_conn = self.upgrader.upgrade_connection(raw_conn, \
                     self.generic_protocol_handler, peer_id)
 
-                print("Conn handler hit")
-                print("Storing peer id " + str(peer_id))
                 # Store muxed_conn with peer id
                 self.connections[peer_id] = muxed_conn
 

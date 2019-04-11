@@ -27,9 +27,7 @@ class PubsubNotifee(INotifee):
 
         # Only add peer_id if we are initiator (otherwise we would end up
         # with two pubsub streams between us and the peer)
-        print("connected notifee")
         if conn.initiator:
-            print("is initiator")
             await self.initiator_peers_queue.put(conn.peer_id)
 
     async def disconnected(self, network, conn):

@@ -106,8 +106,6 @@ class ReceiverNode():
 
     async def start_receiving(self, sender_node_info):
         print("Receiving started")
-
-        print("My sender is " + sender_node_info.peer_id.pretty())
         ack_stream = await self.libp2p_node.new_stream(sender_node_info.peer_id, [self.ack_protocol])
         print("Ack stream created")
         asyncio.ensure_future(self.wait_for_end(ack_stream))
@@ -117,9 +115,6 @@ class ReceiverNode():
         ack_msg = self.topic
         encoded_ack_msg = ack_msg.encode()
         while self.should_listen:
-            print('about to read pubsub')
             msg = await self.pubsub_messages.get()
-            print('about to write ack')
             await ack_stream.write(encoded_ack_msg)
-            print('acked back')
         print("Receiver closed")

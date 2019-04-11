@@ -105,3 +105,6 @@ venv.bak/
 
 # pycharm
 .idea/
+
+# aws credentials
+examples/sharding/easy_sqs_test.py

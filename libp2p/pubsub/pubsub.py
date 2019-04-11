@@ -60,7 +60,6 @@ class Pubsub():
         asyncio.ensure_future(self.handle_peer_queue())
 
     def get_hello_packet(self):
-        print("get hello packet")
         """
         Generate subscription message with all topics we are subscribed to
         only send hello packet if we have subscribed topics
@@ -150,7 +149,7 @@ class Pubsub():
             # (we know connection exists since that's the only way
             # an element gets added to peer_queue)
             stream = await self.host.new_stream(peer_id, self.protocols)
-            print("Opening stream")
+
             # Add Peer
             # Map peer to stream
             self.peers[str(peer_id)] = stream
@@ -167,10 +166,6 @@ class Pubsub():
             await asyncio.sleep(0)
 
     def handle_subscription(self, origin_id, sub_message):
-        print("Handle sub called")
-        print(origin_id)
-        print(sub_message)
-        print("Handle sub info end")
         """
         Handle an incoming subscription message from a peer. Update internal
         mapping to mark the peer as subscribed or unsubscribed to topics as
