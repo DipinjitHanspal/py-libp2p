@@ -36,19 +36,24 @@ async def main():
     # Allow for all nodes to start up
     # await asyncio.sleep(SLEEP_TIME)
 
-    new_key = RSA.generate(2048, e=65537)
-    id_opt = id_from_public_key(new_key.publickey())
+    # new_key = RSA.generate(2048, e=65537)
+    # id_opt = id_from_public_key(new_key.publickey())
 
     # Connect sender node to all other relevant sender nodes
     for neighbor in topology_config_dict["topology"][my_node_id]:
         neighbor_addr_str = topology_config_dict["node_id_map"][neighbor]
 
         # Add p2p part
+        id_opt = ID("peer-" + neighbor)
         neighbor_addr_str += "/p2p/" + id_opt.pretty()
 
         # Convert neighbor_addr_str to multiaddr
         neighbor_addr = multiaddr.Multiaddr(neighbor_addr_str)
+        print("Connecting")
         await connect(sender_node.libp2p_node, neighbor_addr)
+    print("Connected")
+
+    return
 
     # Perform throughput test
     # Start sending messages and perform throughput test
@@ -64,5 +69,5 @@ async def main():
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    asynio.ensure_future(main())
+    asyncio.ensure_future(main())
     loop.run_forever()
