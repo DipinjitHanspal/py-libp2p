@@ -89,13 +89,6 @@ var nodesDict = {}
 		.style("fill", "none")
 		.style("stroke", "#999");
 
-	// var paths = svgContainer.selectAll('path')
-	//   .attr("class", "path")
-	//   .data(svgPaths)
-	//   .attr('d', (d) => line(d))
-	//   .style("fill", "none")
-	//   .style("stroke", "#999");
-
 	const circles = svgContainer.selectAll("circle")
 		.attr("class", "circle")
 		.data(nodes)
@@ -131,13 +124,6 @@ var nodesDict = {}
 		console.log(paths);
 		console.log(formattedLinks)
 		var block = createBlock();
-		// var l = paths.node().getTotalLength()
-		// var speed = 10;
-		// var time = Math.floor(l * speed);
-		// block.transition()
-		// 	.duration(time)
-		//  	.attrTween("transform", delta(paths.node()));
-		// block.remove();
 		svgPaths.forEach((path) => {
 			console.log("path:")
 			console.log(path)
@@ -147,24 +133,9 @@ var nodesDict = {}
 			console.log("translate(" + dx + "," + dy + ")")
 			block.transition()
 			.attr("transform", "translate(" + dx + "," + dy + ")")
-			.duration(2000);
-			// .attrTween("transform", "translate(" + path.x2 + "," + path.y2 + ")")
-			// .attrTween("transform", delta(path));
-			
-			// block.remove();
+			.duration(2000)
+			.on("end", function(d){this.remove()});
 		})
-	}
-	
-	const delta = function(path) {
-		console.log(path)
-		var l = Math.sqrt(Math.pow(path[1].x - path[0].x, 2) + Math.pow(path[1].y - path[0].y))
-		return function(i) {
-			return function(t) {
-				// var p = path.getPointAtLength(t * l);
-				// var p = path[1];
-				return "translate(" + path[1].x + "," + path[1].y + ")";
-			}
-		}
 	}
 
 	transition(paths)
