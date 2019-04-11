@@ -19,7 +19,10 @@ class ID:
         return self._id_str
 
     def __str__(self):
-        return self._id_str
+        pid = self.pretty()
+        if len(pid) <= 10:
+            return "<peer.ID %s>" % pid
+        return "<peer.ID %s*%s>" % (pid[:2], pid[len(pid)-6:])
 
     __repr__ = __str__
 
