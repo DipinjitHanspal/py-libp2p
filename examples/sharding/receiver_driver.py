@@ -94,7 +94,7 @@ async def main():
 
         # Convert neighbor_addr_str to multiaddr
         neighbor_addr = multiaddr.Multiaddr(neighbor_addr_str)
-        # await connect(receiver_node.libp2p_node, neighbor_addr)
+        await connect(receiver_node.libp2p_node, neighbor_addr)
 
     # Get sender info as multiaddr
     sender_addr_str = topology_config_dict["node_id_map"]["sender"]
