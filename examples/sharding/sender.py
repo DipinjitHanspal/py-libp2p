@@ -22,7 +22,7 @@ class SenderNode():
         self.ack_queue = asyncio.Queue()
 
     @classmethod
-    async def create(cls, ack_protocol):
+    async def create(cls, my_node_id, transport_opt_str, ack_protocol):
         """
         Create a new DummyAccountNode and attach a libp2p node, a floodsub, and a pubsub
         instance to this new node
@@ -32,8 +32,8 @@ class SenderNode():
         """
         self = SenderNode()
 
-        libp2p_node = await new_node(transport_opt=["/ip4/127.0.0.1/tcp/0"])
-        await libp2p_node.get_network().listen(multiaddr.Multiaddr("/ip4/127.0.0.1/tcp/0"))
+        libp2p_node = await new_node(transport_opt=[transport_opt_str])
+        await libp2p_node.get_network().listen(multiaddr.Multiaddr(transport_opt_str))
 
         self.libp2p_node = libp2p_node
 
