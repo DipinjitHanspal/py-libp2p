@@ -6,3 +6,4 @@ pylint
 grpcio
 grpcio-tools
 pyvis
+boto3
