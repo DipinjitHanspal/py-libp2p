@@ -83,10 +83,9 @@ async def main():
     receiver_node = await ReceiverNode.create(my_node_id, my_transport_opt_str, ACK_PROTOCOL, my_topic)
     print("Receiver created")
     # TODO: sleep for like 15 seconds to let other nodes start up
-
-    return
-
+    
     # Connect receiver node to all other relevant receiver nodes
+    await asyncio.sleep(5)
     for neighbor in topology_config_dict["topology"][my_node_id]:
         neighbor_addr_str = topology_config_dict["node_id_map"][neighbor]
 
@@ -95,17 +94,19 @@ async def main():
 
         # Convert neighbor_addr_str to multiaddr
         neighbor_addr = multiaddr.Multiaddr(neighbor_addr_str)
-        await connect(receiver_node.libp2p_node, neighbor_addr)
+        # await connect(receiver_node.libp2p_node, neighbor_addr)
 
     # Get sender info as multiaddr
     sender_addr_str = topology_config_dict["node_id_map"]["sender"]
 
     # Convert sender_info_str to multiaddr
-    sender_addr = multiaddr.Multiaddr(sender_addr_str)
+    sender_addr = multiaddr.Multiaddr(sender_addr_str + '/p2p/' + ID('peer-sender').pretty())
 
     # Start listening for messages from sender
     print("Start receiving called")
-    asyncio.ensure_future(receiver_node.start_receiving(sender_addr))
+    sender_info = info_from_p2p_addr(sender_addr)
+    receiver_node.libp2p_node.peerstore.add_addrs(sender_info.peer_id, sender_info.addrs, 10)
+    asyncio.ensure_future(receiver_node.start_receiving(sender_info))
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
