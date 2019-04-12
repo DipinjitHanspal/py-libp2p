@@ -1,3 +1,6 @@
+import json
+import asyncio
+
 from .pb import rpc_pb2
 from .pubsub_router_interface import IPubsubRouter
 
@@ -5,12 +8,14 @@ from .pubsub_router_interface import IPubsubRouter
 class FloodSub(IPubsubRouter):
     # pylint: disable=no-member
 
-    def __init__(self, protocols):
+    def __init__(self, protocols, sqs_client, sqs_url):
         self.protocols = protocols
         self.pubsub = None
 
         # FOR BENCHMARKING ONLY
         self.removed_peers = []
+        self.sqs_client = sqs_client
+        self.sqs_url = sqs_url
 
     def get_protocols(self):
         """
@@ -89,6 +94,18 @@ class FloodSub(IPubsubRouter):
 
                             # Publish the packet
                             await stream.write(new_packet.SerializeToString())
+
+                            # SQS write
+                            loop = asyncio.get_event_loop()
+                            msg = json.dumps({
+                                "type": "send",
+                                "sender": sender_peer_id,
+                                "receiver": peer_id_in_topic
+                            })
+
+                            #resp = await loop.run_in_executor(None, self.sqs_client.send_message, self.sqs_url, msg)
+                            #print("resp: " + resp)
+                            #self.sqs_client.send_message(self.sqs_url, msg)
 
     def join(self, topic):
         """

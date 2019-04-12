@@ -8,6 +8,8 @@ from receiver import ReceiverNode
 from libp2p.peer.peerinfo import info_from_p2p_addr
 from tests.utils import cleanup
 
+from easy_sqs import EasySqs
+
 ACK_PROTOCOL = "/ack/1.0.0"
 
 """
@@ -72,6 +74,12 @@ async def main():
 
     """
     topology_config_dict = json.loads(open(sys.argv[1]).read())
+    aws_config = json.loads(open("aws_config.json").read())
+
+    sqs_url = topology_config_dict["SQS_URL"]
+    #sqs_client = EasySqs(aws_config)
+    sqs_client = "foo"
+
     my_node_id = sys.argv[2]
 
     # Get my topic
@@ -81,7 +89,7 @@ async def main():
     print("Creating receiver")
     my_transport_opt_str = topology_config_dict["node_id_map"][my_node_id]
     receiver_node = \
-        await ReceiverNode.create(my_node_id, my_transport_opt_str, ACK_PROTOCOL, my_topic, topology_config_dict)
+        await ReceiverNode.create(my_node_id, my_transport_opt_str, ACK_PROTOCOL, my_topic, topology_config_dict, sqs_client, sqs_url)
     print("Receiver created")
     
     # Return since all logic is now done in receiver.py

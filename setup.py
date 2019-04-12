@@ -24,7 +24,8 @@ setuptools.setup(
         "multiaddr",
         "grpcio",
         "grpcio-tools",
-        "lru-dict>=1.1.6"
+        "lru-dict>=1.1.6",
+        "boto3"
     ],
     packages=["libp2p"],
     zip_safe=False,

@@ -22,5 +22,6 @@
         "4": "topic2",
         "5": "topic3"
     },
-    "ACK_PROTOCOL": "/ack/1.0.0"
+    "ACK_PROTOCOL": "/ack/1.0.0",
+    "SQS_URL": "https://sqs.us-east-1.amazonaws.com/875814277611/test-queue"
 }

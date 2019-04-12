@@ -9,6 +9,8 @@ from receiver import ReceiverNode
 from libp2p.peer.peerinfo import info_from_p2p_addr
 from tests.utils import cleanup
 
+from easy_sqs import EasySqs
+
 SLEEP_TIME = 5
 
 async def connect(node1, node2_addr):
@@ -23,6 +25,12 @@ async def main():
     a map of node IDs to topics, and ACK_PROTOCOL
     """
     topology_config_dict = json.loads(open(sys.argv[1]).read())
+    aws_config = json.loads(open("aws_config.json").read())
+
+    sqs_url = topology_config_dict["SQS_URL"]
+    #sqs_client = EasySqs(aws_config)
+    sqs_client = "foo"
+
     my_node_id = sys.argv[2]
 
     ack_protocol = topology_config_dict["ACK_PROTOCOL"]
@@ -30,7 +38,7 @@ async def main():
     # Create sender
     print("Creating sender")
     my_transport_opt_str = topology_config_dict["node_id_map"][my_node_id]
-    sender_node = await SenderNode.create(my_node_id, my_transport_opt_str, ack_protocol)
+    sender_node = await SenderNode.create(my_node_id, my_transport_opt_str, ack_protocol, sqs_client, sqs_url)
     print("Sender created")
 
     # Allow for all nodes to start up

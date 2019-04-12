@@ -27,7 +27,7 @@ class ReceiverNode():
         await node1.connect(info)
 
     @classmethod
-    async def create(cls, node_id, transport_opt_str, ack_protocol, topic, topology_config_dict):
+    async def create(cls, node_id, transport_opt_str, ack_protocol, topic, topology_config_dict, sqs_client, sqs_url):
         """
         Create a new ReceiverNode and attach a libp2p node, a floodsub, and a pubsub
         instance to this new node
@@ -45,7 +45,7 @@ class ReceiverNode():
 
         self.libp2p_node = libp2p_node
 
-        self.floodsub = FloodSub(SUPPORTED_PUBSUB_PROTOCOLS)
+        self.floodsub = FloodSub(SUPPORTED_PUBSUB_PROTOCOLS, sqs_client, sqs_url)
         self.pubsub = Pubsub(self.libp2p_node, self.floodsub, "a")
 
         print('subbing to: ' + topic)

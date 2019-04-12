@@ -23,7 +23,7 @@ class SenderNode():
         self.ack_queue = asyncio.Queue()
 
     @classmethod
-    async def create(cls, my_node_id, transport_opt_str, ack_protocol):
+    async def create(cls, my_node_id, transport_opt_str, ack_protocol, sqs_client, sqs_url):
         """
         Create a new DummyAccountNode and attach a libp2p node, a floodsub, and a pubsub
         instance to this new node
@@ -41,7 +41,7 @@ class SenderNode():
 
         self.libp2p_node = libp2p_node
 
-        self.floodsub = FloodSub(SUPPORTED_PUBSUB_PROTOCOLS)
+        self.floodsub = FloodSub(SUPPORTED_PUBSUB_PROTOCOLS, sqs_client, sqs_url)
         self.pubsub = Pubsub(self.libp2p_node, self.floodsub, "a")
         await self.pubsub.subscribe(TOPIC)
 
@@ -66,6 +66,9 @@ class SenderNode():
         # Set handler for acks
         self.ack_protocol = ack_protocol
         self.libp2p_node.set_stream_handler(self.ack_protocol, ack_stream_handler)
+
+        self.sqs_client = sqs_client
+        self.sqs_url = sqs_url
 
         return self
 
@@ -136,7 +139,20 @@ class SenderNode():
                 while num_acks < num_receivers_in_each_topic[topic]:
                     ack = await self.topic_ack_queues[topic].get()
                     num_acks += 1
+
                 num_acks_in_each_topic[topic] += 1
+
+                # SQS write
+                loop = asyncio.get_event_loop()
+                msg = json.dumps({
+                    "type": "send",
+                    "sender": sender_peer_id,
+                    "receiver": peer_id_in_topic
+                })
+
+                #await loop.run_in_executor(None, self.sqs_client.send_message, self.sqs_url, msg)
+                #self.sqs_client.send_message(self.sqs_url, msg)
+
                 curr_time = timer()
             nonlocal completed_topics_count, num_topics
             print("Test completed " + topic)

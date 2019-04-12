@@ -13,7 +13,7 @@ class EasySqs():
         # Send message to SQS queue
         response = self.sqs_client.send_message(
             QueueUrl=queue_url,
-            DelaySeconds=10,
+            DelaySeconds=0,
             MessageBody=(
                 message
             )
