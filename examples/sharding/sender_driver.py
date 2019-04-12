@@ -118,7 +118,7 @@ async def main():
         # num_receivers_in_each_topic[topic] = len(topic_map[topic])
     print("Performing test")
     await asyncio.sleep(0.5)
-    await sender_node.perform_test(num_receivers_in_each_topic, topics, 5)
+    await sender_node.perform_test(num_receivers_in_each_topic, topics, 3600)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
