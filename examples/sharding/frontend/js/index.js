@@ -1,6 +1,6 @@
 // import _ from 'lodash';
 
-import {graph, blocks} from './data-simple.js';
+import {graph, blocks} from './data.js';
 import {EasySQS} from './EasySQS.js'
 import {config} from './config.js'
 
@@ -9,7 +9,10 @@ console.log('starting up...');
 var nodes = graph.nodes;
 var links = graph.links;
 
-var queue = "https://sqs.us-east-1.amazonaws.com/875814277611/test-queue";
+var queueSimple = "https://sqs.us-east-1.amazonaws.com/875814277611/eth-1"
+var queueShard = "https://sqs.us-east-1.amazonaws.com/875814277611/eth-2"
+
+var queue = queueShard;
 
 var sqs = new EasySQS(config);
 
@@ -92,7 +95,7 @@ const plotBlocks = function(blocks) {
 			var dy = end.y_axis -  start.y_axis
 			block.transition()
 			.attr("transform", "translate(" + dx + "," + dy + ")")
-			.duration(2000)
+			.duration(3000)
 			.on("end", function(d){this.remove()});
 	})
 	return;
@@ -207,11 +210,11 @@ var nodesDict = {}
 
 	const createBlock = function(x, y) {
 		const block = svgContainer.append('text')
-			.attr("class", "fa")
+			.attr("class", "fab fa-ethereum")
 			.attr('font-size', "10px")
 			.attr("x", x)
 			.attr("y", y)
-			.text("\uf0e0");   
+			.text("\uf42e");   
 		return block;
 	}
 	// const transition = function(paths) {
@@ -233,14 +236,14 @@ var nodesDict = {}
 	// 	})
 	// }
 
-	// // transition(paths);
-	// setInterval(function() {
-	// 	plotBlocks(blocks);
-	// }, 1000);
+	// transition(paths);
+	setInterval(function() {
+		plotBlocks(blocks);
+	}, 1000);
 
 
 // pullData();
 
-setInterval(function() {
-	pullData();
-}, 1);
+// setInterval(function() {
+// 	pullData();
+// }, 1);
