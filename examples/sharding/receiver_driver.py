@@ -2,6 +2,7 @@ import asyncio
 import json 
 import multiaddr
 import sys
+import concurrent.futures
 from libp2p.peer.id import ID
 from sender import SenderNode
 from receiver import ReceiverNode
@@ -73,12 +74,12 @@ async def main():
     }
 
     """
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=300)
     topology_config_dict = json.loads(open(sys.argv[1]).read())
     aws_config = json.loads(open("aws_config.json").read())
 
     sqs_url = topology_config_dict["SQS_URL"]
-    #sqs_client = EasySqs(aws_config)
-    sqs_client = "foo"
+    sqs_client = EasySqs(aws_config)
 
     my_node_id = sys.argv[2]
 
@@ -89,7 +90,7 @@ async def main():
     print("Creating receiver")
     my_transport_opt_str = topology_config_dict["node_id_map"][my_node_id]
     receiver_node = \
-        await ReceiverNode.create(my_node_id, my_transport_opt_str, ACK_PROTOCOL, my_topic, topology_config_dict, sqs_client, sqs_url)
+        await ReceiverNode.create(my_node_id, my_transport_opt_str, ACK_PROTOCOL, my_topic, topology_config_dict, sqs_client, sqs_url, pool)
     print("Receiver created")
     
     # Return since all logic is now done in receiver.py

@@ -8,7 +8,7 @@ from .pubsub_router_interface import IPubsubRouter
 class FloodSub(IPubsubRouter):
     # pylint: disable=no-member
 
-    def __init__(self, protocols, sqs_client, sqs_url):
+    def __init__(self, protocols, sqs_client, sqs_url, pool):
         self.protocols = protocols
         self.pubsub = None
 
@@ -16,6 +16,7 @@ class FloodSub(IPubsubRouter):
         self.removed_peers = []
         self.sqs_client = sqs_client
         self.sqs_url = sqs_url
+        self.pool = pool
 
     def get_protocols(self):
         """
@@ -103,9 +104,7 @@ class FloodSub(IPubsubRouter):
                                 "receiver": peer_id_in_topic
                             })
 
-                            #resp = await loop.run_in_executor(None, self.sqs_client.send_message, self.sqs_url, msg)
-                            #print("resp: " + resp)
-                            #self.sqs_client.send_message(self.sqs_url, msg)
+                            await loop.run_in_executor(self.pool, self.sqs_client.send_message, self.sqs_url, msg)
 
     def join(self, topic):
         """

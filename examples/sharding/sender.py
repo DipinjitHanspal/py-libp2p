@@ -1,5 +1,6 @@
 import asyncio
 import multiaddr
+import json
 
 from timeit import default_timer as timer
 
@@ -23,7 +24,7 @@ class SenderNode():
         self.ack_queue = asyncio.Queue()
 
     @classmethod
-    async def create(cls, my_node_id, transport_opt_str, ack_protocol, sqs_client, sqs_url):
+    async def create(cls, my_node_id, transport_opt_str, ack_protocol, sqs_client, sqs_url, pool):
         """
         Create a new DummyAccountNode and attach a libp2p node, a floodsub, and a pubsub
         instance to this new node
@@ -41,7 +42,7 @@ class SenderNode():
 
         self.libp2p_node = libp2p_node
 
-        self.floodsub = FloodSub(SUPPORTED_PUBSUB_PROTOCOLS, sqs_client, sqs_url)
+        self.floodsub = FloodSub(SUPPORTED_PUBSUB_PROTOCOLS, sqs_client, sqs_url, pool)
         self.pubsub = Pubsub(self.libp2p_node, self.floodsub, "a")
         await self.pubsub.subscribe(TOPIC)
 
@@ -69,6 +70,7 @@ class SenderNode():
 
         self.sqs_client = sqs_client
         self.sqs_url = sqs_url
+        self.pool = pool
 
         return self
 
@@ -143,15 +145,14 @@ class SenderNode():
                 num_acks_in_each_topic[topic] += 1
 
                 # SQS write
-                loop = asyncio.get_event_loop()
-                msg = json.dumps({
-                    "type": "send",
-                    "sender": sender_peer_id,
-                    "receiver": peer_id_in_topic
-                })
+                if num_acks_in_each_topic[topic] % 10 == 0:
+                    loop = asyncio.get_event_loop()
+                    msg = json.dumps({
+                        "type": "ack",
+                        "inc": 10
+                    })
 
-                #await loop.run_in_executor(None, self.sqs_client.send_message, self.sqs_url, msg)
-                #self.sqs_client.send_message(self.sqs_url, msg)
+                    await loop.run_in_executor(self.pool, self.sqs_client.send_message, self.sqs_url, msg)
 
                 curr_time = timer()
             nonlocal completed_topics_count, num_topics

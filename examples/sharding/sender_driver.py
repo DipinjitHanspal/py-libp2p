@@ -3,6 +3,7 @@ import json
 import multiaddr
 import sys
 import time
+import concurrent.futures
 from libp2p.peer.id import ID
 from sender import SenderNode
 from receiver import ReceiverNode
@@ -24,12 +25,12 @@ async def main():
     a map of node IDs to peer IDs, an adjacency list (named topology) using node IDs,
     a map of node IDs to topics, and ACK_PROTOCOL
     """
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=300)
     topology_config_dict = json.loads(open(sys.argv[1]).read())
     aws_config = json.loads(open("aws_config.json").read())
 
     sqs_url = topology_config_dict["SQS_URL"]
-    #sqs_client = EasySqs(aws_config)
-    sqs_client = "foo"
+    sqs_client = EasySqs(aws_config)
 
     my_node_id = sys.argv[2]
 
@@ -38,7 +39,7 @@ async def main():
     # Create sender
     print("Creating sender")
     my_transport_opt_str = topology_config_dict["node_id_map"][my_node_id]
-    sender_node = await SenderNode.create(my_node_id, my_transport_opt_str, ack_protocol, sqs_client, sqs_url)
+    sender_node = await SenderNode.create(my_node_id, my_transport_opt_str, ack_protocol, sqs_client, sqs_url, pool)
     print("Sender created")
 
     # Allow for all nodes to start up
