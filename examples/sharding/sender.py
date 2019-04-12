@@ -152,7 +152,7 @@ class SenderNode():
                         "inc": 10
                     })
 
-                    asyncio.ensure_future(loop.run_in_executor(self.pool, self.sqs_client.send_message, self.sqs_url, msg))
+                    await loop.run_in_executor(self.pool, self.sqs_client.send_message, self.sqs_url, msg)
 
                 curr_time = timer()
             nonlocal completed_topics_count, num_topics

@@ -104,7 +104,7 @@ class FloodSub(IPubsubRouter):
                                 "receiver": peer_id_in_topic
                             })
 
-                            asyncio.ensure_future(loop.run_in_executor(self.pool, self.sqs_client.send_message, self.sqs_url, msg))
+                            await loop.run_in_executor(self.pool, self.sqs_client.send_message, self.sqs_url, msg)
 
     def join(self, topic):
         """
