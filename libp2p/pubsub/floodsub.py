@@ -48,6 +48,7 @@ class FloodSub(IPubsubRouter):
         for topic in self.pubsub.peer_topics:
             peer_id_str = str(peer_id)
             if peer_id_str in self.pubsub.peer_topics[topic]:
+                print("Removing " + peer_id_str + " from " + topic)
                 self.pubsub.peer_topics[topic].remove(peer_id_str)
 
 

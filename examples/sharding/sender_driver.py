@@ -85,7 +85,7 @@ async def main():
             await command_stream.write("start".encode())
 
     # Wait 2 seconds for nodes to connect
-    await asyncio.sleep(2)
+    await asyncio.sleep(10)
 
     # NOTE: Every node in the network is now a floodsub peer of sender since the PubSub_notifee
     # will ensure that (which is correct). For benchmarking, we do not want this, so we remove
@@ -118,7 +118,7 @@ async def main():
         # num_receivers_in_each_topic[topic] = len(topic_map[topic])
     print("Performing test")
     await asyncio.sleep(0.5)
-    await sender_node.perform_test(num_receivers_in_each_topic, topics, 120)
+    await sender_node.perform_test(num_receivers_in_each_topic, topics, 5)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

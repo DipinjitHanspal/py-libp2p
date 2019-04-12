@@ -71,7 +71,7 @@ class ReceiverNode():
 
                         # Add p2p part
                         neighbor_addr_str += "/p2p/" + ID("peer-" + neighbor).pretty()
-
+                        print("Connecting to neighbor " + neighbor)
                         # Convert neighbor_addr_str to multiaddr
                         neighbor_addr = multiaddr.Multiaddr(neighbor_addr_str)
                         await self.connect(self.libp2p_node, neighbor_addr)
