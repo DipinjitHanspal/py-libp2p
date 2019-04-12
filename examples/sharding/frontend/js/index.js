@@ -14,7 +14,9 @@ var queue = "https://sqs.us-east-1.amazonaws.com/875814277611/test-queue";
 var sqs = new EasySQS(config);
 
 
-var str = "{\"type": \"send\", \"sender\": \"peer-sender\", \"receiver\": \"b'peer-5'\"}"
+var str = "{\"type\": \"send\", \"sender\": \"peer-sender\", \"receiver\": \"b'peer-5'\"}"
+console.log(str)
+console.log(str.replace("b'", ""))
 
 var throughput = [].push(0);
 // var throughput = 0;
@@ -32,14 +34,16 @@ const pullData = function() {
 	var messages = []
 	sqs.receive(queue).then((packet) => {
 		// console.log("packet")
-		console.log(packet)
+		// console.log(packet)
 		packet.Messages.forEach((rawMessage) => {
-			var text = rawMessage.Body.replace("b'", "****");
-			text = text.replace("****", "");
+			var text = rawMessage.Body.replace("b\'", "");
+			// text = text.replace("****", "");
 			text = text.replace("'", "");
-			console.log(text)
 			var message = JSON.parse(text);
 			if (message.type === "send") {
+				message.sender = message.sender.replace("b\'", "")
+				message.receiver = message.receiver.replace("b\'", "")
+				message.receiver = message.receiver.replace("\'", "")
 				messages.push(message); 
 			} else if (message.type === "ack") {
 				console.log(message)
@@ -129,7 +133,7 @@ var nodesDict = {}
 	})
 	// console.log(nodesDict)
 	// console.log(formattedLinks)
-	console.log(svgPaths)
+	// console.log(svgPaths)
 
 	const color = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099"]
 
@@ -240,6 +244,6 @@ var nodesDict = {}
 
 // pullData();
 
-// setInterval(function() {
-// 	pullData();
-// }, 3000);
+setInterval(function() {
+	pullData();
+}, 3000);
