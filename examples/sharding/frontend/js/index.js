@@ -13,15 +13,10 @@ var queue = "https://sqs.us-east-1.amazonaws.com/875814277611/test-queue";
 
 var sqs = new EasySQS(config);
 
-
-var str = "{\"type\": \"send\", \"sender\": \"peer-sender\", \"receiver\": \"b'peer-5'\"}"
-console.log(str)
-console.log(str.replace("b'", ""))
-
-var throughput = [].push(0);
+var throughput = [0]
 // var throughput = 0;
 
-var blockSize = 10;
+var blockSize = 1;
 var messageCounts = {}
 nodes.forEach((node1) => {
 	nodes.forEach((node2) => {
@@ -246,4 +241,4 @@ var nodesDict = {}
 
 setInterval(function() {
 	pullData();
-}, 3000);
+}, 1);
