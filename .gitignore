@@ -105,3 +105,7 @@ venv.bak/
 
 # pycharm
 .idea/
+
+# custom
+config.js
+sqs_test.html
