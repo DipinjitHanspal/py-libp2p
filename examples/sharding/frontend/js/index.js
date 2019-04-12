@@ -1,17 +1,90 @@
 // import _ from 'lodash';
 
 import {graph, blocks} from './data.js';
+import {EasySQS} from './EasySQS.js'
+import {config} from './config.js'
 
-console.log('hello');
-
-console.log(graph);
+console.log('starting up...');
 
 var nodes = graph.nodes;
 var links = graph.links;
 
+var queue = "https://sqs.us-east-1.amazonaws.com/875814277611/test-queue";
+
+var sqs = new EasySQS(config);
+
+
+var str = "{\"type": \"send\", \"sender\": \"peer-sender\", \"receiver\": \"b'peer-5'\"}"
+
+var throughput = [].push(0);
+// var throughput = 0;
+
+var blockSize = 10;
+var messageCounts = {}
+nodes.forEach((node1) => {
+	nodes.forEach((node2) => {
+		// console.log(node1.id + "," + node2.id)
+		messageCounts[node1.id + "," + node2.id] = 0;
+	});
+});
+
+const pullData = function() {
+	var messages = []
+	sqs.receive(queue).then((packet) => {
+		// console.log("packet")
+		console.log(packet)
+		packet.Messages.forEach((rawMessage) => {
+			var text = rawMessage.Body.replace("b'", "****");
+			text = text.replace("****", "");
+			text = text.replace("'", "");
+			console.log(text)
+			var message = JSON.parse(text);
+			if (message.type === "send") {
+				messages.push(message); 
+			} else if (message.type === "ack") {
+				console.log(message)
+				throughput[0] += 10;
+			}
+			// call delete message from queue using easySQS
+			sqs.delete(rawMessage.ReceiptHandle, queue);
+		});
+	}).then(() => {
+		var blocks = convertMessages(messages);
+		plotBlocks(blocks);
+	})
+
+}
+
+const convertMessages = function(messages) {
+	var blocks = [];
+	// console.log("in convert")
+	messages.forEach((message) => {
+		// console.log(message)
+		var key = "" + message.sender + ","  + message.receiver
+		if (!(key in messageCounts)) {
+			console.log(key + "sender or receiver does not exist");
+		} else if (messageCounts[key] + 1 >= blockSize) {
+			// should display block
+			var block = {"source": message.sender, "target": message.receiver}
+			blocks.push(block)
+			messageCounts[key] = 0;
+		} else {
+			// console.log("updating count " + key)
+			// console.log("old: " + messageCounts[key])
+			messageCounts[key] = messageCounts[key] + 1;
+			// console.log("new: " + messageCounts[key])
+		}
+	});
+	if (blocks.length > 0) {
+		console.log("blocks length: " + blocks.length)
+	}
+	return blocks;
+}
+
 
 const plotBlocks = function(blocks) {
 	blocks.forEach((block) => {
+		// console.log("blocks");
 		var start = nodesDict[block.source]
 		var end = nodesDict[block.target]
 		var block = createBlock(start.x_axis, start.y_axis);
@@ -125,6 +198,12 @@ var nodesDict = {}
 		.attr("font-size", "10px")
 		.attr("fill", "black");
 
+	const throughputCounter = svgContainer.select("p")
+		.data(throughput)
+		.enter()
+		.append("p")
+		.text((d) => "hello world " + d)
+
 	const createBlock = function(x, y) {
 		const block = svgContainer.append('text')
 			.attr("class", "fa")
@@ -153,7 +232,14 @@ var nodesDict = {}
 	// 	})
 	// }
 
-	// transition(paths);
-	setInterval(function() {
-		plotBlocks(blocks);
-	}, 1000);
+	// // transition(paths);
+	// setInterval(function() {
+	// 	plotBlocks(blocks);
+	// }, 1000);
+
+
+// pullData();
+
+// setInterval(function() {
+// 	pullData();
+// }, 3000);
