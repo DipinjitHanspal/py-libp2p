@@ -76,7 +76,7 @@ async def main():
     """
     pool = concurrent.futures.ThreadPoolExecutor(max_workers=300)
     topology_config_dict = json.loads(open(sys.argv[1]).read())
-    aws_config = json.loads(open("aws_config.json").read())
+    aws_config = json.loads(open("examples/sharding/aws_config.json").read())
 
     sqs_url = topology_config_dict["SQS_URL"]
     sqs_client = EasySqs(aws_config)
