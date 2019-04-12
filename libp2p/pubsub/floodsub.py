@@ -101,7 +101,7 @@ class FloodSub(IPubsubRouter):
                             loop = asyncio.get_event_loop()
                             msg = json.dumps({
                                 "type": "send",
-                                "sender": sender_peer_id,
+                                "sender": str(self.pubsub.host.get_id()),
                                 "receiver": peer_id_in_topic
                             })
 
