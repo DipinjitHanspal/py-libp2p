@@ -1,6 +1,6 @@
 // import _ from 'lodash';
 
-import {graph, blocks} from './data.js';
+import {graph, blocks} from './data-simple.js';
 import {EasySQS} from './EasySQS.js'
 import {config} from './config.js'
 
@@ -13,7 +13,7 @@ var queue = "https://sqs.us-east-1.amazonaws.com/875814277611/test-queue";
 
 var sqs = new EasySQS(config);
 
-var throughput = [0]
+var throughput = 0
 // var throughput = 0;
 
 var blockSize = 1;
@@ -41,8 +41,9 @@ const pullData = function() {
 				message.receiver = message.receiver.replace("\'", "")
 				messages.push(message); 
 			} else if (message.type === "ack") {
-				console.log(message)
-				throughput[0] += 10;
+				console.log("ACK")
+				throughput += 10;
+				$(".throughput").text("throughput: " + throughput)
 			}
 			// call delete message from queue using easySQS
 			sqs.delete(rawMessage.ReceiptHandle, queue);
@@ -130,7 +131,8 @@ var nodesDict = {}
 	// console.log(formattedLinks)
 	// console.log(svgPaths)
 
-	const color = ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099"]
+	const color = ["#3366cc", "#dc3912", "#ff9900", "#109618",
+				   "#990099", "#59C9A5", "#FFFD98", "#EB5E55", "#ACD7EC"]
 
 	const svgContainer = d3.select(".d3-container").append("svg")
 		.attr("width", 500)
@@ -193,15 +195,15 @@ var nodesDict = {}
 		.attr("x", function(d) { return d.x_axis + 7; })
 		.attr("y", function(d) { return d.y_axis + 2; })
 		.text((d) => d.id)
-		.attr("font-family", "sans-serif")
+		.attr("font-family", "'Lato', sans-serif")
 		.attr("font-size", "10px")
 		.attr("fill", "black");
 
-	const throughputCounter = svgContainer.select("p")
-		.data(throughput)
-		.enter()
-		.append("p")
-		.text((d) => "hello world " + d)
+	// const throughputCounter = svgContainer.select("p")
+	// 	.data(throughput)
+	// 	.enter()
+	// 	.append("p")
+	// 	.text((d) => "hello world " + d)
 
 	const createBlock = function(x, y) {
 		const block = svgContainer.append('text')
