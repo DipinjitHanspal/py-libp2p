@@ -1,6 +1,6 @@
 // import _ from 'lodash';
 
-import {graph, blocks} from './data.js';
+import {graph, blocks} from './data-simple.js';
 import {EasySQS} from './EasySQS.js'
 import {config} from './config.js'
 
@@ -9,13 +9,12 @@ console.log('starting up...');
 var nodes = graph.nodes;
 var links = graph.links;
 
+var queueSimple = "https://sqs.us-east-1.amazonaws.com/875814277611/eth-1-new"
+var queueShard = "https://sqs.us-east-1.amazonaws.com/875814277611/eth-2-new"
+
+var queue = queueSimple;
 
 var start = Date.now();
-
-var queueSimple = "https://sqs.us-east-1.amazonaws.com/875814277611/eth-1-new"
-var queueShard = "https://sqs.us-east-1.amazonaws.com/875814277611/eth-2"
-
-var queue = queueShard;
 
 var sqs = new EasySQS(config);
 
@@ -51,7 +50,7 @@ const pullData = function() {
 				throughput += 10;
 				var delta = Date.now() - start; // milliseconds elapsed since start
     			var seconds = Math.floor(delta / 1000);
-    			var thru = (throughput / seconds).toFixed(2)
+				var thru = (throughput / seconds).toFixed(2)
 				$(".throughput").text("throughput: " + thru + " messages per second")
 				$(".block").text("block number: " + throughput)
 			}
